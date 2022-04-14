@@ -10,7 +10,7 @@ import subprocess
 MIN = 1024*1024*1024
 
 command=list()
-command.append("lsof")
+command.append("/usr/sbin/lsof")
 command.append("-N")
 
 lsof = subprocess.Popen(command, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
