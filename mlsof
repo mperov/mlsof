@@ -12,8 +12,7 @@ MIN = 1024*1024*1024
 
 command=list()
 command.append("lsof")
-command.append("/home")
-#command.append("-N")
+command.append("-N")
 
 lsof = subprocess.Popen(command, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
 try:
