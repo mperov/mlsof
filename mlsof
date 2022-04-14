@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 #
@@ -28,9 +28,9 @@ if (output):
     size = lambda s: s.split()[6]
     result = []
     for i in deleted:
-        if size(i).isdecimal() and int(size(i)) > MIN:
+        if size(i).isnumeric() and int(size(i)) > MIN:
             result.append(i)
     srtd = []
-    srtd = sorted(result, key=lambda d: int(size(d)) if size(d).isdecimal() else 0, reverse=True)
+    srtd = sorted(result, key=lambda d: int(size(d)) if size(d).isnumeric() else 0, reverse=True)
     if srtd != []:
         print("\n".join(srtd))
