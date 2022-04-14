@@ -6,7 +6,6 @@
 #
 
 import subprocess
-from pprint import pprint
 
 MIN = 1024*1024*1024
 
