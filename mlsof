@@ -6,31 +6,67 @@
 #
 
 import subprocess
+from argparse import ArgumentParser
 
-MIN = 1024*1024*1024
+if __name__ == "__main__":
+    parser = ArgumentParser()
+    parser.add_argument("-n", "-N", "--nfs", action='store_true',
+                        help="add -N option for lsof")
+    parser.add_argument("-d", "--deleted", action='store_true',
+                        help="show only deleted files")
+    parser.add_argument("-s", dest="size",
+                        help="show files, which size is more than specified size", metavar="byte (b) or kilobyte (Kb) or megabyte (Mb) or gigabyte (Gb)")
+    parser.add_argument("-p", dest="path",
+                        help="specify path to directory", metavar="/path/to/dir")
+    args = parser.parse_args()
+    N = args.nfs
+    deleted = args.deleted
 
-command=list()
-command.append("lsof")
-command.append("-N")
+    MIN = 1
+    if args.size:
+        size = args.size.strip()
+        if size == 'byte' or size == 'b':
+            pass
+        if size == 'kilobyte' or size == 'Kb':
+            MIN = 1024
+        if size == 'megabyte' or size == 'Mb':
+            MIN = 1024*1024
+        if size == 'gigabyte' or size == 'Gb':
+            MIN = 1024*1024*1024
 
-lsof = subprocess.Popen(command, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-try:
-    output, errs = lsof.communicate()
-except:
-    lsof.kill()
+    command=list()
+    command.append("lsof")
+    if N:
+        command.append("-N")
 
-if (output):
-    lst = str(output).split('\\n')
-    deleted = []
-    for l in lst:
-        if 'deleted' in l:
-            deleted.append(l)
-    size = lambda s: s.split()[6]
-    result = []
-    for i in deleted:
-        if size(i).isnumeric() and int(size(i)) > MIN:
-            result.append(i)
-    srtd = []
-    srtd = sorted(result, key=lambda d: int(size(d)) if size(d).isnumeric() else 0, reverse=True)
-    if srtd != []:
-        print("\n".join(srtd))
+    if args.path:
+        path = args.path.strip()
+        command.append(path)
+
+    lsof = subprocess.Popen(command, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+    try:
+        output, errs = lsof.communicate()
+    except:
+        lsof.kill()
+
+    if (output):
+        lst = str(output).split('\\n')
+        _lst = lst
+        if deleted:
+            deleted = []
+            for l in lst:
+                if 'deleted' in l:
+                    deleted.append(l)
+            _lst = deleted
+        size = lambda s: s.split()[6]
+        result = []
+        for i in _lst:
+            try:
+                if size(i).isnumeric() and int(size(i)) > MIN:
+                    result.append(i)
+            except:
+                pass
+        srtd = []
+        srtd = sorted(result, key=lambda d: int(size(d)) if size(d).isnumeric() else 0, reverse=True)
+        if srtd != []:
+            print("\n".join(srtd))
